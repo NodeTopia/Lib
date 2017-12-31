@@ -27,21 +27,21 @@ var dns = module.exports = {
 
 		});
 	},
-	add : function(data, callback) {
-		console.log(data)
-		var organization = data.organization;
+	add : function(_data, callback) {
+		console.log(_data)
+		var organization = _data.organization;
 
-		var name = data.name.toLowerCase();
-		var type = data.type.toUpperCase();
-		var ttl = data.ttl || 3600;
-		var priority = data.priority;
-		var data = data.data;
+		var name = _data.name.toLowerCase();
+		var type = _data.type.toUpperCase();
+		var ttl = _data.ttl || 3600;
+		var priority = _data.priority;
+		var data = _data.data;
 		var zone = tld.getDomain(name.replace('*.', ''));
 
 		if (type == 'MX' && priority == undefined) {
 			priority = 10;
 		}
-		console.log(zone,name)
+		console.log(zone, name)
 		dns.getZone(zone, organization, function(err, dnsZone) {
 			if (err) {
 				err.type = 'InternalError';
@@ -68,7 +68,11 @@ var dns = module.exports = {
 				priority : priority,
 				reference : dnsZone._id
 			});
-
+			['admin', 'serial', 'refresh', 'retry', 'expiration', 'minimum'].forEach(function(key) {
+				if (_data.hasOwnProperty(key)) {
+					record[key] = _data[key];
+				}
+			});
 			dnsZone.records.push(record._id);
 
 			record.save(function(err) {
