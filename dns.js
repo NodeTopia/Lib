@@ -41,13 +41,16 @@ var dns = module.exports = {
 		if (type == 'MX' && priority == undefined) {
 			priority = 10;
 		}
-		console.log(zone, name)
+
 		dns.getZone(zone, organization, function(err, dnsZone) {
 			if (err) {
 				err.type = 'InternalError';
 				return callback(err);
 			}
 
+			if (dnsZone.isNew) {
+				return callback(new restify.errors.NotFoundError('zone does not exists'));
+			}
 			for (var i = 0; i < dnsZone.records.length; i++) {
 				var record = dnsZone.records[i];
 				if (dnsZone.records[i].name == name && dnsZone.records[i].type == type && dnsZone.records[i].data == data) {
@@ -68,19 +71,25 @@ var dns = module.exports = {
 				priority : priority,
 				reference : dnsZone._id
 			});
-			['admin', 'serial', 'refresh', 'retry', 'expiration', 'minimum'].forEach(function(key) {
+
+			['ttl', 'admin', 'serial', 'refresh', 'retry', 'expiration', 'minimum'].forEach(function(key) {
 				if (_data.hasOwnProperty(key)) {
 					record[key] = _data[key];
 				}
 			});
-			dnsZone.records.push(record._id);
 
 			record.save(function(err) {
 				if (err) {
 					err.type = 'InternalError';
 					return callback(err);
 				}
-				dnsZone.save(function(err) {
+				dnsZone.update({
+					'$push' : {
+						records : {
+							'$each' : [record._id]
+						}
+					}
+				}, function(err) {
 					if (err) {
 						err.type = 'InternalError';
 						return callback(err);
@@ -122,7 +131,9 @@ var dns = module.exports = {
 			if (!dnsZone) {
 				return callback(Error('zone does not exists'));
 			}
-
+			if (dnsZone.isNew) {
+				return next(new restify.errors.NotFoundError('zone does not exists'));
+			}
 			for (var i = 0; i < dnsZone.records.length; i++) {
 				var record = dnsZone.records[i];
 				if (record.name == name && record.type == type && record.data == data) {
