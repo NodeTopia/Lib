@@ -78,7 +78,7 @@ var dns = module.exports = {
                 return reject(new restify.errors.NotFoundError('zone does not exists'));
             }
 
-            if (dns.validateRecord(dnsZone.records, name, type, data, priority, ttl, reject)) {
+            if (!dns.validateRecord(dnsZone.records, name, type, data, priority, ttl, reject)) {
                 return
             }
 
