@@ -29,7 +29,7 @@ var dns = module.exports = {
             resolve(dnsZone);
         })
     },
-    validateRecord: function (records, name, type, data, priority, reject) {
+    validateRecord: function (records, name, type, data, priority, ttl, reject) {
         for (let record of records) {
             if (record.name === name && record.type === type && record.data === data) {
                 if (record.ttl !== ttl) {
@@ -78,7 +78,7 @@ var dns = module.exports = {
                 return reject(new restify.errors.NotFoundError('zone does not exists'));
             }
 
-            if (dns.validateRecord(dnsZone.records, name, type, data, priority, reject)) {
+            if (dns.validateRecord(dnsZone.records, name, type, data, priority, ttl, reject)) {
                 return
             }
 
