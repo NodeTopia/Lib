@@ -115,7 +115,7 @@ var dns = module.exports = {
             }
         })
     },
-    remove: function (data, callback) {
+    remove: function (data) {
 
         return new Promise(async function (resolve, reject) {
 
