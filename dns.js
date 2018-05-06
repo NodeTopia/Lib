@@ -124,7 +124,7 @@ var dns = module.exports = {
             let name = data.name.toLowerCase();
             let type = data.type.toUpperCase();
 
-            let data = data.data;
+            data = data.data;
             let ttl = data.ttl || 3600;
             let zone = tld.getDomain(name.replace('*.', ''));
             let dnsZone
