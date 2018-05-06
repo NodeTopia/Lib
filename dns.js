@@ -140,7 +140,7 @@ var dns = module.exports = {
             if (dnsZone.isNew) {
                 return next(new restify.errors.NotFoundError('zone does not exists'));
             }
-            for (var record of dnsZone.records) {
+            for (var [i, record] of dnsZone.records) {
                 if (record.name === name && record.type === type && record.data === data) {
                     dnsZone.records.splice(i, 1);
                     break;
